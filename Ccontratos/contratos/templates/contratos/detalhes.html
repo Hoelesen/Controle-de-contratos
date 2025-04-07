@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <title>Detalhes do Contrato</title>
+</head>
+<body>
+    <h1>Detalhes do Contrato</h1>
+    <p>ID: {{ contrato.id }}</p>
+    <p>Observação: {{ contrato.observacao }}</p>
+    <p>Checado: {{ contrato.checado }}</p>
+    <a href="{% url 'contratos:index' %}">Voltar</a>
+</body>
+</html>

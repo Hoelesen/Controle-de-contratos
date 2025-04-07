@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Contratos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilo específico para células com checkboxes */
+        .centralizar {
+            vertical-align: middle; /* Centraliza verticalmente o conteúdo */
+            text-align: center; /* Centraliza horizontalmente o conteúdo */
+        }
+
+        /* Ajuste para ícones nos botões */
+        .icon-button img {
+            width: 24px; /* Tamanho maior para melhor visibilidade */
+            height: 24px;
+        }
+        .icon-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Espaçamento entre os ícones */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Cabeçalho com título e botão de Login/Logout -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4">Lista de Contratos</h1>
+            {% if user.is_authenticated %}
+                <a href="{% url 'contratos:logout' %}" class="btn btn-primary">Logout</a>
+            {% else %}
+                <a href="{% url 'contratos:login' %}" class="btn btn-primary">Login</a>
+            {% endif %}
+        </div>
+
+        <!-- Campo de Busca -->
+        <div class="mb-3">
+            <input
+                type="text"
+                id="search-bar"
+                class="form-control"
+                onkeyup="searchTable()"
+                placeholder="Digite para buscar contratos, médicos, tipo...">
+        </div>
+
+        <!-- Tabela de Contratos -->
+        <div class="table-responsive">
+            <form id="form-checkboxes" action="{% url 'contratos:salvar_todos' %}" method="post">
+                {% csrf_token %}
+                <table class="table table-striped table-bordered contracts-table" id="contracts-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Contrato</th>
+                            <th>Médicos</th>
+                            <th>Tipo</th>
+                            <th>Possui Acordo</th>
+                            <th>Observação</th>
+                            <th>Email Principal</th>
+                            <th>Email Secundário</th>
+                            <th>Especialidade</th>
+                            <th>
+                                <!-- Ícones de Desmarcar Todos e Salvar Todos -->
+                                {% if user.is_authenticated %}
+                                    <div class="icon-container">
+                                        <button type="button" class="btn btn-link icon-button p-0" onclick="desmarcarTodos()" title="Desmarcar Todos">
+                                            <img src="{% static 'icons/desmarcar.png' %}" alt="Desmarcar Todos">
+                                        </button>
+                                        <button type="submit" class="btn btn-link icon-button p-0" onclick="return confirm('Deseja salvar todas as alterações?')" title="Salvar Todos">
+                                            <img src="{% static 'icons/saveAll.png' %}" alt="Salvar Todos">
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">Login Necessário</span>
+                                {% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contrato in contratos %}
+                        <tr>
+                            <td>{{ contrato.contrato }}</td>
+                            <td>{{ contrato.medicos }}</td>
+                            <td>{{ contrato.tipo }}</td>
+                            <td>{{ contrato.possui_acordo }}</td>
+                            <td>
+                                {% if contrato.observacao|length > 50 %}
+                                    {{ contrato.observacao|slice:":50" }}...
+                                    <a href="#" class="btn btn-link btn-sm" onclick="openModal('{{ contrato.observacao|escapejs }}')">Ver Mais</a>
+                                {% else %}
+                                    {{ contrato.observacao }}
+                                {% endif %}
+                            </td>
+                            <td>{{ contrato.email_principal }}</td>
+                            <td>{{ contrato.email_secundario }}</td>
+                            <td>{{ contrato.status }}</td>
+                            <!-- Centralização aplicada apenas ao checkbox -->
+                            <td class="centralizar">
+                                <input type="hidden" name="checado_{{ contrato.id }}" value="False">
+                                <input type="checkbox" class="form-check-input" name="checado_{{ contrato.id }}" value="True" {% if contrato.checado %}checked{% endif %} {% if not user.is_authenticated %}disabled{% endif %}>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Observação Completa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalContent"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function searchTable() {
+            const input = document.getElementById("search-bar").value.toLowerCase();
+            const table = document.getElementById("contracts-table");
+            const rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j] && cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                rows[i].style.display = match ? "" : "none";
+            }
+        }
+
+        function desmarcarTodos() {
+            const checkboxes = document.querySelectorAll('.form-check-input');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function openModal(content) {
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `<p>${content}</p>`;
+            const modal = new bootstrap.Modal(document.getElementById('myModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>
