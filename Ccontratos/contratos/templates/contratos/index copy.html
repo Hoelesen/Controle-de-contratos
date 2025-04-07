@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     {% load static %}
     <meta charset="UTF-8">
@@ -10,47 +11,51 @@
     <style>
         /* Estilo para a tabela de contratos */
         .contracts-table td {
-            vertical-align: middle; /* Centraliza verticalmente o conteúdo */
-            text-align: center; /* Centraliza horizontalmente o conteúdo */
+            vertical-align: middle;
+            /* Centraliza verticalmente o conteúdo */
+            text-align: center;
+            /* Centraliza horizontalmente o conteúdo */
         }
 
         .contracts-table .form-check-input {
-            margin: auto; /* Alinha o checkbox no centro da célula */
-            display: block; /* Garante centralização */
+            margin: auto;
+            /* Alinha o checkbox no centro da célula */
+            display: block;
+            /* Garante centralização */
         }
 
         /* Ajuste para ícones nos botões */
         .icon-button img {
-            width: 24px; /* Tamanho maior para melhor visibilidade */
+            width: 24px;
+            /* Tamanho maior para melhor visibilidade */
             height: 24px;
         }
+
         .icon-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px; /* Espaçamento entre os ícones */
+            gap: 10px;
+            /* Espaçamento entre os ícones */
         }
     </style>
 </head>
+
 <body>
     <div class="container mt-4">
         <!-- Cabeçalho com título e botão de Login/Logout -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="h4">Lista de Contratos</h1>
             {% if user.is_authenticated %}
-                <a href="{% url 'contratos:logout' %}" class="btn btn-primary">Logout</a>
+            <a href="{% url 'contratos:logout' %}" class="btn btn-primary">Logout</a>
             {% else %}
-                <a href="{% url 'contratos:login' %}" class="btn btn-primary">Login</a>
+            <a href="{% url 'contratos:login' %}" class="btn btn-primary">Login</a>
             {% endif %}
         </div>
 
         <!-- Campo de Busca -->
         <div class="mb-3">
-            <input
-                type="text"
-                id="search-bar"
-                class="form-control"
-                onkeyup="searchTable()"
+            <input type="text" id="search-bar" class="form-control" onkeyup="searchTable()"
                 placeholder="Digite para buscar contratos, médicos, tipo...">
         </div>
 
@@ -72,17 +77,24 @@
                             <th>
                                 <!-- Ícones de Desmarcar Todos e Salvar Todos -->
                                 {% if user.is_authenticated %}
-                                    <div class="icon-container">
-                                        <button type="button" class="btn btn-link icon-button p-0" onclick="desmarcarTodos()" title="Desmarcar Todos">
-                                            <img src="{% static 'icons/desmarcar.png' %}" alt="Desmarcar Todos">
-                                        </button>
-                                        <button type="submit" class="btn btn-link icon-button p-0" onclick="return confirm('Deseja salvar todas as alterações?')" title="Salvar Todos">
-                                            <img src="{% static 'icons/saveAll.png' %}" alt="Salvar Todos">
-                                        </button>
-                                    </div>
+                                <div class="icon-container">
+                                    <button type="button" class="btn btn-link icon-button p-0"
+                                        onclick="desmarcarTodos()" title="Desmarcar Todos">
+                                        <img src="{% static 'icons/desmarcar.png' %}" alt="Desmarcar Todos">
+                                    </button>
+                                    <button type="submit" class="btn btn-link icon-button p-0"
+                                        onclick="return confirm('Deseja salvar todas as alterações?')"
+                                        title="Salvar Todos">
+                                        <img src="{% static 'icons/saveAll.png' %}" alt="Salvar Todos">
+                                    </button>
+                                </div>
                                 {% else %}
-                                    <span class="text-muted">Faça login para habilitar os botões</span>
+                                <span class="text-muted">Faça login para habilitar os botões</span>
                                 {% endif %}
+                                {% for item in itens %}
+
+                                {% endfor %}
+
                             </th>
                         </tr>
                     </thead>
@@ -92,13 +104,14 @@
                             <td>{{ contrato.contrato }}</td>
                             <td>{{ contrato.medicos }}</td>
                             <td>{{ contrato.tipo }}</td>
-                            <td>{{ contrato.possui_acordo }}</td>
+                            <td>{{ contrato.possui_acordo|yesno:"Sim,Não" }}</td>
                             <td>
                                 {% if contrato.observacao|length > 50 %}
-                                    {{ contrato.observacao|slice:":50" }}...
-                                    <a href="#" class="btn btn-link btn-sm" onclick="openModal('{{ contrato.observacao|escapejs }}')">Ver Mais</a>
+                                {{ contrato.observacao|slice:":50" }}...
+                                <a href="#" class="btn btn-link btn-sm"
+                                    onclick="openModal('{{ contrato.observacao|escapejs }}')">Ver Mais</a>
                                 {% else %}
-                                    {{ contrato.observacao }}
+                                {{ contrato.observacao }}
                                 {% endif %}
                             </td>
                             <td>{{ contrato.email_principal }}</td>
@@ -106,7 +119,9 @@
                             <td>{{ contrato.status }}</td>
                             <td # centralizar>
                                 <input type="hidden" name="checado_{{ contrato.id }}" value="False">
-                                <input type="checkbox" class="form-check-input" name="checado_{{ contrato.id }}" value="True" {% if contrato.checado %}checked{% endif %} {% if not user.is_authenticated %}disabled{% endif %}>
+                                <input type="checkbox" class="form-check-input" name="checado_{{ contrato.id }}"
+                                    value="True" {% if contrato.checado %}checked{% endif %} {% if not
+                                    user.is_authenticated %}disabled{% endif %}>
                             </td>
                         </tr>
                         {% endfor %}
@@ -170,4 +185,5 @@
         }
     </script>
 </body>
+
 </html>

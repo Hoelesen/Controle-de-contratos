@@ -14,3 +14,4 @@ class Contrato(models.Model):
 
     def __str__(self):
         return f"Contrato {self.contrato} - {self.status}"
+

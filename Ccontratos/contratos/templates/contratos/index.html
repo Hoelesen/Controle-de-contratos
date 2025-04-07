@@ -87,7 +87,14 @@
                             <td>{{ contrato.contrato }}</td>
                             <td>{{ contrato.medicos }}</td>
                             <td>{{ contrato.tipo }}</td>
-                            <td>{{ contrato.possui_acordo }}</td>
+                            <td>
+                                {% if contrato.possui_acordo %}
+                                    Sim
+                                {% else %}
+                                    Não
+                                {% endif %}
+                            </td>
+                            
                             <td>
                                 {% if contrato.observacao|length > 50 %}
                                     {{ contrato.observacao|slice:":50" }}...
