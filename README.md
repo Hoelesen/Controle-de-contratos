@@ -11,7 +11,6 @@ Bem-vindo ao repositório do Sistema de Gestão de Contratos desenvolvido para o
 - [Instalação](#instalação)
 - [Estrutura de Pastas](#estrutura-de-pastas)
 - [Funcionalidades](#funcionalidades)
-- [Screenshots](#screenshots)
 - [Contribuindo](#contribuindo)
 - [Licença](#licença)
 - [Início Automático](#início-automático)
@@ -139,17 +138,6 @@ gestao-contratos/
 - Geração de relatórios personalizados
 
 ---
-
-## **Screenshots**
-
-> **Tela de Login**  
-Tela de login do sistema
-
-> **Dashboard**  
-Painel principal com lista de contratos
-
----
-
 ## **Contribuindo**
 
 Siga estes passos para contribuir:
