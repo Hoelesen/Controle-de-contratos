@@ -85,9 +85,9 @@ python manage.py createsuperuser
 
 ### 6. Execute o servidor
 ```bash
-python manage.py runserver
+python manage.py runserver 0.0.0.0:4500
 ```
-Acesse o sistema em: http://localhost:8000
+Acesse o sistema em: http://localhost:4500
 
 ---
 
