@@ -169,7 +169,63 @@ Distribuído sob a licença MIT. Veja LICENSE para mais informações.
 Este arquivo está pronto para ser usado como README.md no seu projeto! Basta copiar todo o conteúdo acima e colar em um novo arquivo README.md na raiz do seu projeto.
 ```
 
+### Configurando Serviço para Iniciar Automáticamente no Linux
 
+Como configurar o serviço `Ccontratos.service` utilizando **systemd** no Linux para iniciar automaticamente após a reinicialização.
+
+---
+ Criação do Arquivo do Serviço
+
+ **Abra o terminal e crie o arquivo de serviço:**
+   ```bash
+   sudo nano /etc/systemd/system/Ccontratos.service
+```
+**Adicione o seguinte conteúdo ao arquivo**
+```bash
+[Unit]
+Description=Inicia o sistema de gestão de contratos
+After=network.target
+
+[Service]
+User=user #subistitua pelo seu usuário
+Group=user #substitua pelo seu grupo
+WorkingDirectory=/var/www/html/Ccontratos
+ExecStart=/var/www/html/Ccontratos/env/bin/python manage.py runserver 0.0.0.0:4500
+Restart=always
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
+```
+**Salve o arquivo e saia do editor:**
+No nano, use **CTRL+O** para salvar, **ENTER** para confirmar e **CTRL+X** para sair.
+
+Recarregar e Habilitar o Serviço
+Após criar o arquivo, recarregue o systemd e habilite o serviço:
+```bash
+sudo systemctl daemon-reload
+````
+Habilitar o serviço para iniciar automaticamente:
+```bash
+sudo systemctl enable Ccontratos.service
+````
+Iniciar o serviço manualmente para testar:
+```bash
+sudo systemctl start Ccontratos.service
+````
+Verificar o status do serviço:
+```bash
+sudo systemctl status Ccontratos.service
+````
+Reinicie o sistema
+Para confirmar que o serviço está configurado corretamente, reinicie o sistema:
+```bash
+sudo reboot
+````
+Verificar Logs do Serviço
+```bash
+sudo journalctl -u Ccontratos.service
+````
 
 
 
