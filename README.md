@@ -63,6 +63,7 @@ cd seu-repositorio
 
 ### 2. Crie e ative um ambiente virtual
 ```bash
+apt-get install python3-venv
 python3 -m venv venv
 source venv/bin/activate
 ```
