@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from .models import AuditLog, User
 from .models import Contrato
 
 
@@ -17,7 +19,6 @@ def index(request):
 def salvar_todos(request):
     """
     View que salva todos os checkboxes da página.
-    Exige autenticação para funcionar.
     """
     if request.method == "POST":
         for key, value in request.POST.items():
@@ -25,9 +26,18 @@ def salvar_todos(request):
                 contrato_id = key.split("_")[1]
                 contrato = get_object_or_404(Contrato, id=contrato_id)
                 contrato.checado = (value == "True")
+                contrato.modified_by = request.user  # Captura o usuário que fez a alteração
                 contrato.save()
+
+                # Registrar no AuditLog
+                AuditLog.objects.create(
+                    user=request.user,
+                    contrato=contrato,
+                    action=f"Alterou checkbox para {'True' if contrato.checado else 'False'}"
+                )
         return redirect('contratos:index')
     return HttpResponse("Método não permitido", status=405)
+
 
 
 def detalhes_contrato(request, id):
@@ -59,3 +69,32 @@ def atualizar_checado(request, id):
         contrato.save()
         return redirect('contratos:index')
     return HttpResponse("Método não permitido", status=405)
+
+
+
+@login_required
+def auditoria_filtrada(request):
+    logs = AuditLog.objects.all().order_by('-timestamp')  # Recupera todos os logs inicialmente
+    usuarios = User.objects.all()  # Lista de usuários para o dropdown
+
+    # Filtros enviados pelo formulário
+    tipo_acao = request.GET.get('action')
+    usuario_id = request.GET.get('user')
+    data_inicio = request.GET.get('start_date')
+    data_fim = request.GET.get('end_date')
+
+    # Aplicar filtros
+    if usuario_id and usuario_id != 'all':
+        logs = logs.filter(user_id=usuario_id)
+    if tipo_acao:
+        logs = logs.filter(action__icontains=tipo_acao)
+    if data_inicio:
+        logs = logs.filter(timestamp__gte=data_inicio)
+    if data_fim:
+        logs = logs.filter(timestamp__lte=data_fim)
+
+    # Verificar se os logs estão sendo enviados para o template
+    return render(request, 'contratos/auditoria_filtrada.html', {
+        'logs': logs,
+        'usuarios': usuarios,
+    })

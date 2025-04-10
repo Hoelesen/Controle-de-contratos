@@ -12,22 +12,17 @@
         /* Estilo para a tabela de contratos */
         .contracts-table td {
             vertical-align: middle;
-            /* Centraliza verticalmente o conteúdo */
             text-align: center;
-            /* Centraliza horizontalmente o conteúdo */
         }
 
         .contracts-table .form-check-input {
             margin: auto;
-            /* Alinha o checkbox no centro da célula */
             display: block;
-            /* Garante centralização */
         }
 
         /* Ajuste para ícones nos botões */
         .icon-button img {
             width: 24px;
-            /* Tamanho maior para melhor visibilidade */
             height: 24px;
         }
 
@@ -36,7 +31,6 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            /* Espaçamento entre os ícones */
         }
     </style>
 </head>
@@ -55,8 +49,7 @@
 
         <!-- Campo de Busca -->
         <div class="mb-3">
-            <input type="text" id="search-bar" class="form-control" onkeyup="searchTable()"
-                placeholder="Digite para buscar contratos, médicos, tipo...">
+            <input type="text" id="search-bar" class="form-control" onkeyup="searchTable()" placeholder="Buscar...">
         </div>
 
         <!-- Tabela de Contratos -->
@@ -73,9 +66,10 @@
                             <th>Observação</th>
                             <th>Email Principal</th>
                             <th>Email Secundário</th>
-                            <th>Status</th>
+                            <th>Especialidade</th>
+                            <th>Data de Ativação</th>
+                            <th>Data de Inativação</th>
                             <th>
-                                <!-- Ícones de Desmarcar Todos e Salvar Todos -->
                                 {% if user.is_authenticated %}
                                 <div class="icon-container">
                                     <button type="button" class="btn btn-link icon-button p-0"
@@ -83,18 +77,13 @@
                                         <img src="{% static 'icons/desmarcar.png' %}" alt="Desmarcar Todos">
                                     </button>
                                     <button type="submit" class="btn btn-link icon-button p-0"
-                                        onclick="return confirm('Deseja salvar todas as alterações?')"
-                                        title="Salvar Todos">
+                                        onclick="openSaveModal(event)" title="Salvar Todos">
                                         <img src="{% static 'icons/saveAll.png' %}" alt="Salvar Todos">
                                     </button>
                                 </div>
                                 {% else %}
                                 <span class="text-muted">Faça login para habilitar os botões</span>
                                 {% endif %}
-                                {% for item in itens %}
-
-                                {% endfor %}
-
                             </th>
                         </tr>
                     </thead>
@@ -117,11 +106,12 @@
                             <td>{{ contrato.email_principal }}</td>
                             <td>{{ contrato.email_secundario }}</td>
                             <td>{{ contrato.status }}</td>
-                            <td # centralizar>
+                            <td>{{ contrato.data_ativacao|date:"d/m/Y" }}</td>
+                            <td>{{ contrato.data_inativacao|date:"d/m/Y" }}</td>
+                            <td>
                                 <input type="hidden" name="checado_{{ contrato.id }}" value="False">
-                                <input type="checkbox" class="form-check-input" name="checado_{{ contrato.id }}"
-                                    value="True" {% if contrato.checado %}checked{% endif %} {% if not
-                                    user.is_authenticated %}disabled{% endif %}>
+                                <input type="checkbox" class="form-check-input" name="checado_{{ contrato.id }}" value="True"
+                                    {% if contrato.checado %}checked{% endif %} {% if not user.is_authenticated %}disabled{% endif %}>
                             </td>
                         </tr>
                         {% endfor %}
@@ -131,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal para Exibição de Observação -->
     <div class="modal fade" id="myModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -140,6 +130,24 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="modalContent"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Confirmação de Salvamento -->
+    <div class="modal fade" id="saveModal" tabindex="-1" aria-labelledby="saveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="saveModalLabel">Confirmação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    As alterações foram salvas com sucesso!
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
@@ -182,6 +190,18 @@
             modalContent.innerHTML = `<p>${content}</p>`;
             const modal = new bootstrap.Modal(document.getElementById('myModal'));
             modal.show();
+        }
+
+        function openSaveModal(event) {
+            event.preventDefault(); // Evita a submissão imediata do formulário
+            const form = document.getElementById("form-checkboxes");
+            const saveModal = new bootstrap.Modal(document.getElementById("saveModal"));
+            saveModal.show();
+
+            // Submete o formulário após o modal fechar
+            document.getElementById("saveModal").addEventListener("hidden.bs.modal", function () {
+                form.submit();
+            });
         }
     </script>
 </body>

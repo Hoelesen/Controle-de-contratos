@@ -63,6 +63,7 @@ cd seu-repositorio
 
 ### 2. Crie e ative um ambiente virtual
 ```bash
+apt-get install python3-venv
 python3 -m venv venv
 source venv/bin/activate
 ```
@@ -85,9 +86,9 @@ python manage.py createsuperuser
 
 ### 6. Execute o servidor
 ```bash
-python manage.py runserver
+python manage.py runserver 0.0.0.0:4500
 ```
-Acesse o sistema em: http://localhost:8000
+Acesse o sistema em: http://localhost:4500
 
 ---
 
